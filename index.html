@@ -170,14 +170,23 @@
 
       // Generate random geometry with random vertices
       const vertices = [];
-      const vertexCount = 30; // Number of vertices
+      const faces = [];
+      const vertexCount = 100; // Number of vertices
       for (let i = 0; i < vertexCount; i++) {
         vertices.push((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
       }
 
+      // Generate faces (triangles) from vertices
+      for (let i = 0; i < vertexCount - 2; i++) {
+        faces.push(i, i + 1, i + 2);
+      }
+
       const randomGeometry = new THREE.BufferGeometry();
       randomGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-      const randomMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+      randomGeometry.setIndex(faces);
+      randomGeometry.computeVertexNormals();
+
+      const randomMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff, flatShading: true });
       const randomMesh = new THREE.Mesh(randomGeometry, randomMaterial);
 
       model = randomMesh;
