@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>3D Model Viewer</title>
   <style>
     body {
       margin: 0;
@@ -14,6 +13,7 @@
       background-color: #191a1b;
       color: #ece8e3;
       overflow: hidden;
+      cursor: none; /* Hide default cursor */
     }
     #container {
       width: 64vw; /* 20% smaller than 80vw */
@@ -47,6 +47,21 @@
     .button:hover {
       background: #555;
     }
+    .my_cursor {
+      width: 40px;
+      height: 40px;
+      position: absolute;
+      border-radius: 50%;
+      background: url('https://via.placeholder.com/40') no-repeat center center;
+      background-size: contain;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      animation: rotateCursor 1s linear infinite;
+    }
+    @keyframes rotateCursor {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
@@ -59,7 +74,9 @@
   </div>
   <div class="gui-container">
     <button class="button" onclick="generateRandomModel()">Generate Random Model</button>
+    <button class="button" onclick="resetModel()">Reset</button>
   </div>
+  <div class="my_cursor" id="customCursor"></div>
   <script>
     let scene, camera, renderer, controls, model;
     const gui = new dat.GUI({ autoPlace: false });
@@ -115,6 +132,13 @@
 
       // Handle window resize
       window.addEventListener('resize', onWindowResize, false);
+
+      // Custom cursor
+      const customCursor = document.getElementById('customCursor');
+      window.addEventListener('mousemove', (event) => {
+        customCursor.style.top = event.clientY + 'px';
+        customCursor.style.left = event.clientX + 'px';
+      });
     }
 
     function loadModel(modelPath) {
@@ -182,6 +206,10 @@
 
       controls.target.copy(center);
       controls.update();
+    }
+
+    function resetModel() {
+      loadModel('chunch.glb');
     }
 
     function onWindowResize() {
