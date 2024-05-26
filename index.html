@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>3D Model Viewer</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Nunito', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #202020;
-      color: #f0f0f0;
+      background-color: #191a1b;
+      color: #ece8e3;
+      overflow: hidden;
     }
     #container {
-      width: 70vw;
-      height: 70vh;
+      width: 80vw;
+      height: 80vh;
       border: 1px solid #ccc;
+      position: relative;
     }
     #viewer {
       width: 100%;
@@ -54,6 +56,15 @@
     .button:hover {
       background: #555;
     }
+    .my_cursor {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      border-radius: 50%;
+      border: 2px solid #ece8e3;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
@@ -81,7 +92,7 @@
 
       // Scene
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x202020);
+      scene.background = new THREE.Color(0x191a1b);
 
       // Camera
       camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -126,6 +137,15 @@
 
       // Handle window resize
       window.addEventListener('resize', onWindowResize, false);
+
+      // Custom cursor
+      let myCursor = document.createElement('DIV');
+      myCursor.classList.add('my_cursor');
+      document.body.append(myCursor);
+      window.addEventListener('mousemove', (event) => {
+        myCursor.style.top = event.clientY + 'px';
+        myCursor.style.left = event.clientX + 'px';
+      });
     }
 
     function loadModel(modelPath) {
@@ -161,14 +181,15 @@
     function generateRandomModel() {
       if (model) scene.remove(model);
       
-      const randomGeometry = new THREE.BufferGeometry();
-      const vertices = new Float32Array([
-        (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10,
-        (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10
-      ]);
-      randomGeometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-      const randomMaterial = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
+      const geometries = [
+        new THREE.BoxGeometry(Math.random() * 2, Math.random() * 2, Math.random() * 2),
+        new THREE.SphereGeometry(Math.random() * 1, 32, 32),
+        new THREE.ConeGeometry(Math.random() * 1, Math.random() * 2, 32),
+        new THREE.CylinderGeometry(Math.random() * 1, Math.random() * 1, Math.random() * 2, 32),
+        new THREE.TorusGeometry(Math.random() * 1, Math.random() * 0.5, 16, 100)
+      ];
+      const randomGeometry = geometries[Math.floor(Math.random() * geometries.length)];
+      const randomMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
       const randomMesh = new THREE.Mesh(randomGeometry, randomMaterial);
       
       model = randomMesh;
