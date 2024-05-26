@@ -11,8 +11,8 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #ffffff; /* Set background color to white */
-      color: #000000; /* Text color to black for contrast */
+      background-color: #ffffff;
+      color: #000000;
     }
     #container {
       width: 70vw;
@@ -55,7 +55,7 @@
 
       // Scene
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xffffff); // Set background color to white
+      scene.background = new THREE.Color(0xffffff);
 
       // Camera
       camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
@@ -85,6 +85,9 @@
       directionalLight.castShadow = true;
       scene.add(directionalLight);
 
+      const ambientLight = new THREE.AmbientLight(0x404040, 1.5); // Soft white light
+      scene.add(ambientLight);
+
       // Load Model
       const loader = new THREE.GLTFLoader();
       loader.load('chunch.glb', function (gltf) {
@@ -109,7 +112,7 @@
         // Rotate model to correct orientation
         model.rotation.x = Math.PI / 2; // Adjust this value as needed
 
-        // Add GUI controls
+        // GUI Controls
         const modelFolder = gui.addFolder('Model Transformations');
         modelFolder.add(model.rotation, 'x', 0, Math.PI * 2).name('Rotate X');
         modelFolder.add(model.rotation, 'y', 0, Math.PI * 2).name('Rotate Y');
@@ -118,6 +121,20 @@
         modelFolder.add(model.position, 'y', -10, 10).name('Position Y');
         modelFolder.add(model.position, 'z', -10, 10).name('Position Z');
         modelFolder.open();
+
+        const sceneFolder = gui.addFolder('Scene Settings');
+        sceneFolder.addColor({ color: '#ffffff' }, 'color').name('Background Color').onChange((value) => {
+          scene.background.set(value);
+        });
+        sceneFolder.open();
+
+        const lightFolder = gui.addFolder('Light Settings');
+        lightFolder.add(hemisphereLight, 'intensity', 0, 2).name('Hemisphere Light');
+        lightFolder.add(directionalLight, 'intensity', 0, 2).name('Directional Light');
+        lightFolder.add(ambientLight, 'intensity', 0, 2).name('Ambient Light');
+        lightFolder.open();
+
+        gui.add({ reset: resetModel }, 'reset').name('Reset Model');
 
         controls.target.copy(center);
         controls.update();
@@ -135,6 +152,13 @@
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
+    }
+
+    function resetModel() {
+      if (model) {
+        model.position.set(0, 0, 0);
+        model.rotation.set(0, Math.PI / 2, 0); // Reset to initial orientation
+      }
     }
 
     function animate() {
