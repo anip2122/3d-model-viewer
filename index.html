@@ -33,20 +33,22 @@
       color: #202020;
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
 </head>
 <body>
   <div id="info">
     <h2>3D Model Viewer</h2>
-    <p>Use your mouse to rotate the model and scroll to zoom in/out.</p>
+    <p>Use your mouse to rotate the model and scroll to zoom in/out. Use the panel to adjust the model.</p>
   </div>
   <div id="container">
     <div id="viewer"></div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
   <script>
     let scene, camera, renderer, controls, model;
+    const gui = new dat.GUI();
 
     function init() {
       const container = document.getElementById('viewer');
@@ -106,6 +108,16 @@
 
         // Rotate model to correct orientation
         model.rotation.x = Math.PI / 2; // Adjust this value as needed
+
+        // Add GUI controls
+        const modelFolder = gui.addFolder('Model Transformations');
+        modelFolder.add(model.rotation, 'x', 0, Math.PI * 2).name('Rotate X');
+        modelFolder.add(model.rotation, 'y', 0, Math.PI * 2).name('Rotate Y');
+        modelFolder.add(model.rotation, 'z', 0, Math.PI * 2).name('Rotate Z');
+        modelFolder.add(model.position, 'x', -10, 10).name('Position X');
+        modelFolder.add(model.position, 'y', -10, 10).name('Position Y');
+        modelFolder.add(model.position, 'z', -10, 10).name('Position Z');
+        modelFolder.open();
 
         controls.target.copy(center);
         controls.update();
