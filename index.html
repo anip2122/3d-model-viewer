@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <title>3D Model Viewer</title>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; }
-    #container { width: 100vw; height: 100vh; display: flex; justify-content: center; align-items: center; }
-    #viewer { width: 30%; height: 30%; border: 1px solid #ccc; }
+    body { margin: 0; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    #container { width: 50vw; height: 50vh; border: 1px solid #ccc; }
+    #viewer { width: 100%; height: 100%; }
     #info { position: absolute; top: 10px; left: 10px; background: rgba(255, 255, 255, 0.8); padding: 10px; border-radius: 5px; }
   </style>
 </head>
@@ -53,7 +53,7 @@
 
       // Load Model
       const loader = new THREE.GLTFLoader();
-      loader.load('earth 2.glb', function (gltf) {
+      loader.load('chunch.glb', function (gltf) {
         model = gltf.scene;
         scene.add(model);
         animate();
