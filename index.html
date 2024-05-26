@@ -47,15 +47,6 @@
     .button:hover {
       background: #555;
     }
-    .my_cursor {
-      width: 20px;
-      height: 20px;
-      position: absolute;
-      border-radius: 50%;
-      border: 2px solid #ece8e3;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-    }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
@@ -124,15 +115,6 @@
 
       // Handle window resize
       window.addEventListener('resize', onWindowResize, false);
-
-      // Custom cursor
-      let myCursor = document.createElement('DIV');
-      myCursor.classList.add('my_cursor');
-      document.body.append(myCursor);
-      window.addEventListener('mousemove', (event) => {
-        myCursor.style.top = event.clientY + 'px';
-        myCursor.style.left = event.clientX + 'px';
-      });
     }
 
     function loadModel(modelPath) {
@@ -168,15 +150,13 @@
     function generateRandomModel() {
       if (model) scene.remove(model);
 
-      // Generate random geometry with random vertices
+      const vertexCount = Math.floor(Math.random() * (150 - 30 + 1)) + 30;
       const vertices = [];
-      const faces = [];
-      const vertexCount = 100; // Number of vertices
       for (let i = 0; i < vertexCount; i++) {
         vertices.push((Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 10);
       }
 
-      // Generate faces (triangles) from vertices
+      const faces = [];
       for (let i = 0; i < vertexCount - 2; i++) {
         faces.push(i, i + 1, i + 2);
       }
