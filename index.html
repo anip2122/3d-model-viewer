@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>3D Model Viewer</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
+  <script>
+    let scene, camera, renderer, model;
+
+    function init() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+      light.position.set(0, 20, 0);
+      scene.add(light);
+
+      const loader = new THREE.GLTFLoader();
+      loader.load('path/to/your/model.glb', function (gltf) {
+        model = gltf.scene;
+        scene.add(model);
+        animate();
+      }, undefined, function (error) {
+        console.error(error);
+      });
+
+      camera.position.z = 5;
+
+      window.addEventListener('resize', onWindowResize, false);
+      document.addEventListener('mousemove', onDocumentMouseMove, false);
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    let mouseX = 0, mouseY = 0;
+
+    function onDocumentMouseMove(event) {
+      mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+      mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (model) {
+        model.rotation.y = mouseX * Math.PI;
+        model.rotation.x = mouseY * Math.PI;
+      }
+      renderer.render(scene, camera);
+    }
+
+    init();
+  </script>
+</body>
+</html>
