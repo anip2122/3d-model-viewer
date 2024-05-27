@@ -243,41 +243,6 @@
       addModelControls();
     }
 
-    // Modify the loadModel function to call onModelLoaded after loading the model
-    function loadModel(modelPath) {
-      const loader = new THREE.GLTFLoader();
-      loader.load(modelPath, function (gltf) {
-        if (model) scene.remove(model);
-        model = gltf.scene;
-        scene.add(model);
-
-        // Set model color
-        model.traverse((node) => {
-          if (node.isMesh) {
-            node.material.color.setHex(0x3C302C);
-          }
-        });
-
-        // Center and scale model
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        const maxAxis = Math.max(size.x, size.y, size.z);
-        model.position.sub(center);
-        model.scale.setScalar(1 / maxAxis);
-        model.position.set(0, 0, 0);
-
-        controls.target.copy(center);
-        controls.update();
-        animate();
-
-        // Add model controls after the model is loaded
-        onModelLoaded();
-      }, undefined, function (error) {
-        console.error(error);
-      });
-    }
-
     init();
   </script>
 </body>
