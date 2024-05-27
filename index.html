@@ -143,9 +143,6 @@
         controls.target.copy(center);
         controls.update();
         animate();
-
-        // Add model controls after the model is loaded
-        onModelLoaded();
       }, undefined, function (error) {
         console.error(error);
       });
@@ -199,48 +196,6 @@
       requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
-    }
-
-    // GUI Controls for Camera
-    const cameraFolder = gui.addFolder('Camera');
-    cameraFolder.add(camera.position, 'x', -10, 10).name('Position X');
-    cameraFolder.add(camera.position, 'y', -10, 10).name('Position Y');
-    cameraFolder.add(camera.position, 'z', -10, 10).name('Position Z');
-    cameraFolder.open();
-
-    // GUI Controls for Lights
-    const lightFolder = gui.addFolder('Light Settings');
-    lightFolder.add(hemisphereLight, 'intensity', 0, 2).name('Hemisphere Light');
-    lightFolder.add(directionalLight, 'intensity', 0, 2).name('Directional Light');
-    lightFolder.add(ambientLight, 'intensity', 0, 2).name('Ambient Light');
-    lightFolder.open();
-
-    function addModelControls() {
-      // GUI Controls for Model Position
-      const modelFolder = gui.addFolder('Model Position');
-      modelFolder.add(model.position, 'x', -10, 10).name('Position X');
-      modelFolder.add(model.position, 'y', -10, 10).name('Position Y');
-      modelFolder.add(model.position, 'z', -10, 10).name('Position Z');
-      modelFolder.open();
-
-      // GUI Controls for Model Rotation
-      const rotationFolder = gui.addFolder('Model Rotation');
-      rotationFolder.add(model.rotation, 'x', 0, Math.PI * 2).name('Rotation X');
-      rotationFolder.add(model.rotation, 'y', 0, Math.PI * 2).name('Rotation Y');
-      rotationFolder.add(model.rotation, 'z', 0, Math.PI * 2).name('Rotation Z');
-      rotationFolder.open();
-
-      // GUI Controls for Model Scale
-      const scaleFolder = gui.addFolder('Model Scale');
-      scaleFolder.add(model.scale, 'x', 0.1, 10).name('Scale X');
-      scaleFolder.add(model.scale, 'y', 0.1, 10).name('Scale Y');
-      scaleFolder.add(model.scale, 'z', 0.1, 10).name('Scale Z');
-      scaleFolder.open();
-    }
-
-    // Call this function after the model is loaded
-    function onModelLoaded() {
-      addModelControls();
     }
 
     init();
