@@ -214,23 +214,6 @@
     lightFolder.add(ambientLight, 'intensity', 0, 2).name('Ambient Light');
     lightFolder.open();
 
-    // Blender-style Keymap Setup
-    function setupBlenderKeymap() {
-      controls.mouseButtons = {
-        LEFT: THREE.MOUSE.PAN,  // This will use the left mouse button for panning
-        MIDDLE: THREE.MOUSE.DOLLY,  // This will use the middle mouse button (scroll wheel) for dollying (zooming in/out)
-        RIGHT: THREE.MOUSE.ROTATE  // This will use the right mouse button for rotating
-      };
-      controls.keys = {
-        LEFT: 'ArrowLeft',  // Pan left
-        UP: 'ArrowUp',  // Pan up
-        RIGHT: 'ArrowRight',  // Pan right
-        BOTTOM: 'ArrowDown'  // Pan down
-      };
-    }
-
-    setupBlenderKeymap();
-
     function addModelControls() {
       // GUI Controls for Model Position
       const modelFolder = gui.addFolder('Model Position');
@@ -294,7 +277,6 @@
       });
     }
 
-    setupBlenderKeymap();
     init();
   </script>
 </body>
