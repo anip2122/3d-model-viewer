@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>3D Model Viewer</title>
   <style>
     body {
       margin: 0;
@@ -52,6 +51,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.6/dat.gui.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/geometries/ParametricGeometry.js"></script>
 </head>
 <body>
   <div id="container">
@@ -62,7 +62,7 @@
     <button class="button" onclick="resetModel()">Reset</button>
   </div>
   <script>
-    let scene, camera, renderer, controls, model;
+    let scene, camera, renderer, controls, model, axesHelper;
     const gui = new dat.GUI({ autoPlace: false });
     document.querySelector('.gui-container').appendChild(gui.domElement);
 
@@ -86,7 +86,8 @@
       // Controls
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.25;
+      controls.dampingFactor = 0.05; // Less sensitive damping
+      controls.rotateSpeed = 0.3; // Less sensitive rotation speed
       controls.screenSpacePanning = false;
       controls.maxPolarAngle = Math.PI;
       controls.update();
@@ -104,18 +105,15 @@
       const ambientLight = new THREE.AmbientLight(0x404040, 1.5);
       scene.add(ambientLight);
 
-      // Load initial model
-      loadModel('chunch.glb');
-
-      // Light settings GUI
-      const lightFolder = gui.addFolder('Light Settings');
-      lightFolder.add(hemisphereLight, 'intensity', 0, 2).name('Hemisphere Light');
-      lightFolder.add(directionalLight, 'intensity', 0, 2).name('Directional Light');
-      lightFolder.add(ambientLight, 'intensity', 0, 2).name('Ambient Light');
-      lightFolder.open();
+      // Axes Helper
+      axesHelper = new THREE.AxesHelper(5);
+      scene.add(axesHelper);
 
       // Handle window resize
       window.addEventListener('resize', onWindowResize, false);
+
+      // Load initial model
+      loadModel('chunch.glb');
     }
 
     function loadModel(modelPath) {
@@ -144,33 +142,25 @@
         controls.target.copy(center);
         controls.update();
         animate();
+
+        // Add model controls after the model is loaded
+        onModelLoaded();
       }, undefined, function (error) {
         console.error(error);
       });
     }
+
     function generateRandomModel() {
       if (model) scene.remove(model);
 
-      const vertexCount = Math.floor(Math.random() * (150 - 30 + 1)) + 30;
-      const vertices = [];
-      for (let i = 0; i < vertexCount; i++) {
-        vertices.push(
-          (Math.random() - 0.5) * 10,
-          (Math.random() - 0.5) * 10,
-          (Math.random() - 0.5) * 10
-        );
+      function randomFunction(u, v, target) {
+        const x = (Math.sin(u * Math.PI) * Math.sin(v * Math.PI)) * Math.random() * 2;
+        const y = (Math.sin(u * Math.PI) * Math.cos(v * Math.PI)) * Math.random() * 2;
+        const z = (Math.cos(u * Math.PI)) * Math.random() * 2;
+        target.set(x, y, z);
       }
 
-      const faces = [];
-      for (let i = 0; i < vertexCount - 2; i++) {
-        faces.push(i, i + 1, i + 2);
-      }
-
-      const randomGeometry = new THREE.BufferGeometry();
-      randomGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-      randomGeometry.setIndex(faces);
-      randomGeometry.computeVertexNormals();
-
+      const randomGeometry = new THREE.ParametricGeometry(randomFunction, 30, 30);
       const randomMaterial = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
         flatShading: true,
@@ -210,6 +200,101 @@
       renderer.render(scene, camera);
     }
 
+    // GUI Controls for Camera
+    const cameraFolder = gui.addFolder('Camera');
+    cameraFolder.add(camera.position, 'x', -10, 10).name('Position X');
+    cameraFolder.add(camera.position, 'y', -10, 10).name('Position Y');
+    cameraFolder.add(camera.position, 'z', -10, 10).name('Position Z');
+    cameraFolder.open();
+
+    // GUI Controls for Lights
+    const lightFolder = gui.addFolder('Light Settings');
+    lightFolder.add(hemisphereLight, 'intensity', 0, 2).name('Hemisphere Light');
+    lightFolder.add(directionalLight, 'intensity', 0, 2).name('Directional Light');
+    lightFolder.add(ambientLight, 'intensity', 0, 2).name('Ambient Light');
+    lightFolder.open();
+
+    // Blender-style Keymap Setup
+    function setupBlenderKeymap() {
+      controls.mouseButtons = {
+        LEFT: THREE.MOUSE.PAN,  // This will use the left mouse button for panning
+        MIDDLE: THREE.MOUSE.DOLLY,  // This will use the middle mouse button (scroll wheel) for dollying (zooming in/out)
+        RIGHT: THREE.MOUSE.ROTATE  // This will use the right mouse button for rotating
+      };
+      controls.keys = {
+        LEFT: 'ArrowLeft',  // Pan left
+        UP: 'ArrowUp',  // Pan up
+        RIGHT: 'ArrowRight',  // Pan right
+        BOTTOM: 'ArrowDown'  // Pan down
+      };
+    }
+
+    setupBlenderKeymap();
+
+    function addModelControls() {
+      // GUI Controls for Model Position
+      const modelFolder = gui.addFolder('Model Position');
+      modelFolder.add(model.position, 'x', -10, 10).name('Position X');
+      modelFolder.add(model.position, 'y', -10, 10).name('Position Y');
+      modelFolder.add(model.position, 'z', -10, 10).name('Position Z');
+      modelFolder.open();
+
+      // GUI Controls for Model Rotation
+      const rotationFolder = gui.addFolder('Model Rotation');
+      rotationFolder.add(model.rotation, 'x', 0, Math.PI * 2).name('Rotation X');
+      rotationFolder.add(model.rotation, 'y', 0, Math.PI * 2).name('Rotation Y');
+      rotationFolder.add(model.rotation, 'z', 0, Math.PI * 2).name('Rotation Z');
+      rotationFolder.open();
+
+      // GUI Controls for Model Scale
+      const scaleFolder = gui.addFolder('Model Scale');
+      scaleFolder.add(model.scale, 'x', 0.1, 10).name('Scale X');
+      scaleFolder.add(model.scale, 'y', 0.1, 10).name('Scale Y');
+      scaleFolder.add(model.scale, 'z', 0.1, 10).name('Scale Z');
+      scaleFolder.open();
+    }
+
+    // Call this function after the model is loaded
+    function onModelLoaded() {
+      addModelControls();
+    }
+
+    // Modify the loadModel function to call onModelLoaded after loading the model
+    function loadModel(modelPath) {
+      const loader = new THREE.GLTFLoader();
+      loader.load(modelPath, function (gltf) {
+        if (model) scene.remove(model);
+        model = gltf.scene;
+        scene.add(model);
+
+        // Set model color
+        model.traverse((node) => {
+          if (node.isMesh) {
+            node.material.color.setHex(0x3C302C);
+          }
+        });
+
+        // Center and scale model
+        const box = new THREE.Box3().setFromObject(model);
+        const center = box.getCenter(new THREE.Vector3());
+        const size = box.getSize(new THREE.Vector3());
+        const maxAxis = Math.max(size.x, size.y, size.z);
+        model.position.sub(center);
+        model.scale.setScalar(1 / maxAxis);
+        model.position.set(0, 0, 0);
+
+        controls.target.copy(center);
+        controls.update();
+        animate();
+
+        // Add model controls after the model is loaded
+        onModelLoaded();
+      }, undefined, function (error) {
+        console.error(error);
+      });
+    }
+
+    setupBlenderKeymap();
     init();
   </script>
 </body>
