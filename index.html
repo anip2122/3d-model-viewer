@@ -64,8 +64,6 @@
   </div>
   <script>
     let scene, camera, renderer, controls, model, axesHelper;
-    const gui = new dat.GUI({ autoPlace: false });
-    document.querySelector('.gui-container').appendChild(gui.domElement);
 
     function init() {
       const container = document.getElementById('viewer');
@@ -75,8 +73,8 @@
       scene.background = new THREE.Color(0x191a1b);
 
       // Camera
-      camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-      camera.position.set(0, 50, 150); // Set initial position much farther out
+      camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 2000);
+      camera.position.set(0, 100, 300); // Set initial position much farther out
 
       // Renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -88,8 +86,9 @@
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.rotateSpeed = 0.05;
-      controls.zoomSpeed = 1.0; // Increase zoom speed
+      controls.rotateSpeed = 0.1; // Increase rotation speed sensitivity
+      controls.zoomSpeed = 2.0; // Increase zoom speed sensitivity
+      controls.panSpeed = 1.6; // Increase pan speed sensitivity
       controls.screenSpacePanning = false;
       controls.maxPolarAngle = Math.PI;
       controls.update();
@@ -131,6 +130,9 @@
             node.material.color.setHex(0x3C302C);
           }
         });
+
+        // Rotate initial model position
+        model.rotation.y = Math.PI / 2;
 
         fitCameraToObject(camera, model);
 
@@ -180,7 +182,7 @@
       const fov = camera.fov * (Math.PI / 180);
       let cameraZ = Math.abs(maxDim / 2 * Math.tan(fov * 2));
 
-      cameraZ *= 1.5; // Zoom out a bit more
+      cameraZ *= 2; // Zoom out a bit more
       camera.position.z = cameraZ;
 
       const minZ = box.min.z;
