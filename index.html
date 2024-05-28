@@ -16,8 +16,8 @@
       overflow: hidden;
     }
     #container {
-      width: 64vw; /* 20% smaller than 80vw */
-      height: 64vh; /* 20% smaller than 80vh */
+      width: 64vw;
+      height: 64vh;
       border: 1px solid #ccc;
       position: relative;
     }
@@ -80,7 +80,6 @@
 
       // Camera
       camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-      camera.position.set(0, 2, 5);
 
       // Renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -91,8 +90,8 @@
       // Controls
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.05; // Less sensitive damping
-      controls.rotateSpeed = 0.3; // Less sensitive rotation speed
+      controls.dampingFactor = 0.05;
+      controls.rotateSpeed = 0.3;
       controls.screenSpacePanning = false;
       controls.maxPolarAngle = Math.PI;
       controls.update();
@@ -185,15 +184,16 @@
       // Center the model
       model.position.sub(center);
 
-      // Calculate the offset to move the model to the center of the scene
-      const offset = new THREE.Vector3(-center.x, -center.y, -center.z);
-      model.position.add(offset);
-
       // Scale the model
-      model.scale.setScalar(1 / maxAxis);
+      const scale = 2 / maxAxis; // Adjust the scale factor as needed
+      model.scale.setScalar(scale);
+
+      // Adjust camera position based on the size of the model
+      const cameraDistance = maxAxis * 2;
+      camera.position.set(0, maxAxis * 0.75, cameraDistance);
 
       // Set the camera target to the center of the model
-      controls.target.copy(center);
+      controls.target.set(0, 0, 0);
     }
 
     function setRotationAxis(axis) {
