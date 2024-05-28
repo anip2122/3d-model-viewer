@@ -16,8 +16,8 @@
       overflow: hidden;
     }
     #container {
-      width: 64vw;
-      height: 64vh;
+      width: 64vw; /* 20% smaller than 80vw */
+      height: 64vh; /* 20% smaller than 80vh */
       border: 1px solid #ccc;
       position: relative;
     }
@@ -61,13 +61,9 @@
   <div class="gui-container">
     <button class="button" onclick="generateRandomModel()">Generate Random Model</button>
     <button class="button" onclick="resetModel()">Reset</button>
-    <button class="button" onclick="setRotationAxis('x')">Rotate X</button>
-    <button class="button" onclick="setRotationAxis('y')">Rotate Y</button>
-    <button class="button" onclick="setRotationAxis('z')">Rotate Z</button>
   </div>
   <script>
     let scene, camera, renderer, controls, model, axesHelper;
-    let rotationAxis = 'y'; // Default rotation axis
     const gui = new dat.GUI({ autoPlace: false });
     document.querySelector('.gui-container').appendChild(gui.domElement);
 
@@ -80,6 +76,7 @@
 
       // Camera
       camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(0, 2, 5);
 
       // Renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -90,8 +87,8 @@
       // Controls
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.05;
-      controls.rotateSpeed = 0.3;
+      controls.dampingFactor = 0.05; // Less sensitive damping
+      controls.rotateSpeed = 0.05; // Less sensitive rotation speed
       controls.screenSpacePanning = false;
       controls.maxPolarAngle = Math.PI;
       controls.update();
@@ -134,9 +131,6 @@
           }
         });
 
-        // Center and scale model
-        centerAndScaleModel(model);
-
         controls.update();
         animate();
       }, undefined, function (error) {
@@ -164,40 +158,11 @@
       model = randomMesh;
       scene.add(model);
 
-      // Center and scale model
-      centerAndScaleModel(model);
-
       controls.update();
     }
 
     function resetModel() {
       loadModel('chunch.glb');
-    }
-
-    function centerAndScaleModel(model) {
-      // Calculate the bounding box of the model
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const maxAxis = Math.max(size.x, size.y, size.z);
-
-      // Center the model
-      model.position.sub(center);
-
-      // Scale the model
-      const scale = 2 / maxAxis; // Adjust the scale factor as needed
-      model.scale.setScalar(scale);
-
-      // Adjust camera position based on the size of the model
-      const cameraDistance = maxAxis * 2;
-      camera.position.set(0, maxAxis * 0.75, cameraDistance);
-
-      // Set the camera target to the center of the model
-      controls.target.set(0, 0, 0);
-    }
-
-    function setRotationAxis(axis) {
-      rotationAxis = axis;
     }
 
     function onWindowResize() {
@@ -209,17 +174,6 @@
 
     function animate() {
       requestAnimationFrame(animate);
-
-      // Apply rotation to the model based on the selected axis
-      if (model) {
-        if (rotationAxis === 'x') {
-          model.rotation.x += 0.01;
-        } else if (rotationAxis === 'y') {
-          model.rotation.y += 0.01;
-        } else if (rotationAxis === 'z') {
-          model.rotation.z += 0.01;
-        }
-      }
 
       controls.update();
       renderer.render(scene, camera);
