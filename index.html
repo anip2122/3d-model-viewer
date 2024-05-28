@@ -131,8 +131,8 @@
           }
         });
 
-        // Rotate initial model position
-        model.rotation.y = Math.PI / 2;
+        // Rotate initial model position opposite direction twice
+        model.rotation.y = -Math.PI;
 
         fitCameraToObject(camera, model);
 
@@ -147,7 +147,7 @@
       if (model) scene.remove(model);
 
       function randomFunction(u, v, target) {
-        const r = 1 + 0.3 * Math.sin(5 * u) * Math.sin(5 * v);
+        const r = 1 + 0.3 * Math.sin(5 * u * Math.random()) * Math.sin(5 * v * Math.random());
         const x = r * Math.sin(u * Math.PI) * Math.cos(v * Math.PI);
         const y = r * Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
         const z = r * Math.cos(u * Math.PI);
