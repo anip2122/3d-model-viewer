@@ -61,9 +61,13 @@
   <div class="gui-container">
     <button class="button" onclick="generateRandomModel()">Generate Random Model</button>
     <button class="button" onclick="resetModel()">Reset</button>
+    <button class="button" onclick="setRotationAxis('x')">Rotate X</button>
+    <button class="button" onclick="setRotationAxis('y')">Rotate Y</button>
+    <button class="button" onclick="setRotationAxis('z')">Rotate Z</button>
   </div>
   <script>
     let scene, camera, renderer, controls, model, axesHelper;
+    let rotationAxis = 'y'; // Default rotation axis
     const gui = new dat.GUI({ autoPlace: false });
     document.querySelector('.gui-container').appendChild(gui.domElement);
 
@@ -132,15 +136,8 @@
         });
 
         // Center and scale model
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        const maxAxis = Math.max(size.x, size.y, size.z);
-        model.position.sub(center);
-        model.scale.setScalar(1 / maxAxis);
-        model.position.set(0, 0, 0);
+        centerAndScaleModel(model);
 
-        controls.target.copy(center);
         controls.update();
         animate();
       }, undefined, function (error) {
@@ -169,20 +166,34 @@
       scene.add(model);
 
       // Center and scale model
-      const box = new THREE.Box3().setFromObject(model);
-      const center = box.getCenter(new THREE.Vector3());
-      const size = box.getSize(new THREE.Vector3());
-      const maxAxis = Math.max(size.x, size.y, size.z);
-      model.position.sub(center);
-      model.scale.setScalar(1 / maxAxis);
-      model.position.set(0, 0, 0);
+      centerAndScaleModel(model);
 
-      controls.target.copy(center);
       controls.update();
     }
 
     function resetModel() {
       loadModel('chunch.glb');
+    }
+
+    function centerAndScaleModel(model) {
+      // Calculate the bounding box of the model
+      const box = new THREE.Box3().setFromObject(model);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+      const maxAxis = Math.max(size.x, size.y, size.z);
+
+      // Center the model
+      model.position.sub(center);
+
+      // Scale the model
+      model.scale.setScalar(1 / maxAxis);
+
+      // Set the camera target to the center of the model
+      controls.target.copy(center);
+    }
+
+    function setRotationAxis(axis) {
+      rotationAxis = axis;
     }
 
     function onWindowResize() {
@@ -194,6 +205,18 @@
 
     function animate() {
       requestAnimationFrame(animate);
+
+      // Apply rotation to the model based on the selected axis
+      if (model) {
+        if (rotationAxis === 'x') {
+          model.rotation.x += 0.01;
+        } else if (rotationAxis === 'y') {
+          model.rotation.y += 0.01;
+        } else if (rotationAxis === 'z') {
+          model.rotation.z += 0.01;
+        }
+      }
+
       controls.update();
       renderer.render(scene, camera);
     }
