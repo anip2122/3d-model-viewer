@@ -76,7 +76,7 @@
 
       // Camera
       camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-      camera.position.set(0, 10, 30); // Set initial position much farther out
+      camera.position.set(0, 50, 150); // Set initial position much farther out
 
       // Renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -132,6 +132,8 @@
           }
         });
 
+        fitCameraToObject(camera, model);
+
         controls.update();
         animate();
       }, undefined, function (error) {
@@ -142,11 +144,11 @@
     function generateRandomModel() {
       if (model) scene.remove(model);
 
-      // Improved random function to generate smooth objects
       function randomFunction(u, v, target) {
-        const x = Math.sin(u * Math.PI) * Math.cos(v * Math.PI);
-        const y = Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
-        const z = Math.cos(u * Math.PI);
+        const r = 1 + 0.3 * Math.sin(5 * u) * Math.sin(5 * v);
+        const x = r * Math.sin(u * Math.PI) * Math.cos(v * Math.PI);
+        const y = r * Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
+        const z = r * Math.cos(u * Math.PI);
         target.set(x, y, z);
       }
 
@@ -160,11 +162,37 @@
       model = randomMesh;
       scene.add(model);
 
+      fitCameraToObject(camera, model);
+
       controls.update();
     }
 
     function resetModel() {
       loadModel('chunch.glb');
+    }
+
+    function fitCameraToObject(camera, object) {
+      const box = new THREE.Box3().setFromObject(object);
+      const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const fov = camera.fov * (Math.PI / 180);
+      let cameraZ = Math.abs(maxDim / 2 * Math.tan(fov * 2));
+
+      cameraZ *= 1.5; // Zoom out a bit more
+      camera.position.z = cameraZ;
+
+      const minZ = box.min.z;
+      const cameraToFarEdge = minZ < 0 ? -minZ + cameraZ : cameraZ;
+
+      camera.far = cameraToFarEdge * 3;
+      camera.updateProjectionMatrix();
+
+      camera.lookAt(center);
+
+      controls.maxDistance = cameraZ * 2;
+      controls.target.copy(center);
     }
 
     function onWindowResize() {
