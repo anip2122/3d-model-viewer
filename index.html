@@ -16,8 +16,8 @@
       overflow: hidden;
     }
     #container {
-      width: 64vw; /* 20% smaller than 80vw */
-      height: 64vh; /* 20% smaller than 80vh */
+      width: 64vw;
+      height: 64vh;
       border: 1px solid #ccc;
       position: relative;
     }
@@ -76,7 +76,7 @@
 
       // Camera
       camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
-      camera.position.set(0, 2, 5);
+      camera.position.set(0, 2, 10); // Set initial position farther out
 
       // Renderer
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -87,8 +87,9 @@
       // Controls
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
-      controls.dampingFactor = 0.05; // Less sensitive damping
-      controls.rotateSpeed = 0.05; // Less sensitive rotation speed
+      controls.dampingFactor = 0.05;
+      controls.rotateSpeed = 0.05;
+      controls.zoomSpeed = 0.5; // Increase zoom speed
       controls.screenSpacePanning = false;
       controls.maxPolarAngle = Math.PI;
       controls.update();
@@ -142,9 +143,9 @@
       if (model) scene.remove(model);
 
       function randomFunction(u, v, target) {
-        const x = (Math.sin(u * Math.PI) * Math.sin(v * Math.PI)) * Math.random() * 2;
-        const y = (Math.sin(u * Math.PI) * Math.cos(v * Math.PI)) * Math.random() * 2;
-        const z = (Math.cos(u * Math.PI)) * Math.random() * 2;
+        const x = Math.sin(u * Math.PI) * Math.sin(v * Math.PI);
+        const y = Math.sin(u * Math.PI) * Math.cos(v * Math.PI);
+        const z = Math.cos(u * Math.PI);
         target.set(x, y, z);
       }
 
