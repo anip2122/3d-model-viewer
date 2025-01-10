@@ -67,53 +67,35 @@
 
     function init() {
       const container = document.getElementById('viewer');
-
-      // Scene
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x191a1b);
-
-      // Camera
       camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 2000);
-      camera.position.set(0, 100, 300); // Set initial position much farther out
-
-      // Renderer
+      camera.position.set(0, 100, 300);
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
       renderer.setPixelRatio(window.devicePixelRatio);
       container.appendChild(renderer.domElement);
-
-      // Controls
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.05;
-      controls.rotateSpeed = 0.1; // Increase rotation speed sensitivity
-      controls.zoomSpeed = 2.0; // Increase zoom speed sensitivity
-      controls.panSpeed = 1.6; // Increase pan speed sensitivity
+      controls.rotateSpeed = 0.1;
+      controls.zoomSpeed = 2.0;
+      controls.panSpeed = 1.6;
       controls.screenSpacePanning = false;
       controls.maxPolarAngle = Math.PI;
       controls.update();
-
-      // Lights
       const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
       hemisphereLight.position.set(0, 20, 0);
       scene.add(hemisphereLight);
-
       const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
       directionalLight.position.set(5, 10, 7.5);
       directionalLight.castShadow = true;
       scene.add(directionalLight);
-
       const ambientLight = new THREE.AmbientLight(0x404040, 1.5);
       scene.add(ambientLight);
-
-      // Axes Helper
       axesHelper = new THREE.AxesHelper(5);
       scene.add(axesHelper);
-
-      // Handle window resize
       window.addEventListener('resize', onWindowResize, false);
-
-      // Load initial model
       loadModel('chunch.glb');
     }
 
@@ -123,19 +105,13 @@
         if (model) scene.remove(model);
         model = gltf.scene;
         scene.add(model);
-
-        // Set model color
         model.traverse((node) => {
           if (node.isMesh) {
             node.material.color.setHex(0x3C302C);
           }
         });
-
-        // Rotate initial model position opposite direction twice
         model.rotation.y = -Math.PI;
-
         fitCameraToObject(camera, model);
-
         controls.update();
         animate();
       }, undefined, function (error) {
@@ -145,7 +121,6 @@
 
     function generateRandomModel() {
       if (model) scene.remove(model);
-
       function randomFunction(u, v, target) {
         const r = 1 + 0.3 * Math.sin(5 * u * Math.random()) * Math.sin(5 * v * Math.random());
         const x = r * Math.sin(u * Math.PI) * Math.cos(v * Math.PI);
@@ -153,19 +128,15 @@
         const z = r * Math.cos(u * Math.PI);
         target.set(x, y, z);
       }
-
       const randomGeometry = new THREE.ParametricGeometry(randomFunction, 30, 30);
       const randomMaterial = new THREE.MeshStandardMaterial({
         color: Math.random() * 0xffffff,
         flatShading: true,
       });
       const randomMesh = new THREE.Mesh(randomGeometry, randomMaterial);
-
       model = randomMesh;
       scene.add(model);
-
       fitCameraToObject(camera, model);
-
       controls.update();
     }
 
@@ -177,22 +148,16 @@
       const box = new THREE.Box3().setFromObject(object);
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
-
       const maxDim = Math.max(size.x, size.y, size.z);
       const fov = camera.fov * (Math.PI / 180);
       let cameraZ = Math.abs(maxDim / 2 * Math.tan(fov * 2));
-
-      cameraZ *= 2; // Zoom out a bit more
+      cameraZ *= 2;
       camera.position.z = cameraZ;
-
       const minZ = box.min.z;
       const cameraToFarEdge = minZ < 0 ? -minZ + cameraZ : cameraZ;
-
       camera.far = cameraToFarEdge * 3;
       camera.updateProjectionMatrix();
-
       camera.lookAt(center);
-
       controls.maxDistance = cameraZ * 2;
       controls.target.copy(center);
     }
@@ -206,7 +171,6 @@
 
     function animate() {
       requestAnimationFrame(animate);
-
       controls.update();
       renderer.render(scene, camera);
     }
